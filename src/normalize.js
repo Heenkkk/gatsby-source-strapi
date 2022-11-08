@@ -22,24 +22,28 @@ const extractImage = async (image, ctx) => {
 
   // If we don't have cached data, download the file
   if (!fileNodeID) {
-    // full media url
-    const source_url = `${image.url.startsWith('http') ? '' : apiURL}${image.url}`;
-    const fileNode = await createRemoteFileNode({
-      url: source_url,
-      store,
-      cache,
-      createNode,
-      createNodeId,
-      auth,
-    });
-
-    if (fileNode) {
-      fileNodeID = fileNode.id;
-
-      await cache.set(mediaDataCacheKey, {
-        fileNodeID,
-        updatedAt: getUpdatedAt(image),
+    try {
+      // full media url
+      const source_url = `${image.url.startsWith('http') ? '' : apiURL}${image.url}`;
+      const fileNode = await createRemoteFileNode({
+        url: source_url,
+        store,
+        cache,
+        createNode,
+        createNodeId,
+        auth,
       });
+
+      if (fileNode) {
+        fileNodeID = fileNode.id;
+
+        await cache.set(mediaDataCacheKey, {
+          fileNodeID,
+          updatedAt: getUpdatedAt(image),
+        });
+      }
+    } catch (error) {
+      // Ignore
     }
   }
 
